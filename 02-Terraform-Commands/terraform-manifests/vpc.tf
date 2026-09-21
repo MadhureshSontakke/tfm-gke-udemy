@@ -1,8 +1,5 @@
 # Terraform Provider Configuration: google
-provider "google" {
-  project = "gcplearn9"
-  region = "us-central1"
-}
+
 
 # Resource: VPC
 resource "google_compute_network" "myvpc" {
