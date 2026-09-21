@@ -77,7 +77,7 @@ jobs:
       - name: Working-Dir
         run: |
             echo "Current PWD is $( pwd | awk -F'/tfm-gke-udemy/' '{print $2}')"
-            
+            echo "new Current PWD is ${PWD##*/tfm-gke-udemy/}"
       - name: Terraform Init
         run: terraform init
 
