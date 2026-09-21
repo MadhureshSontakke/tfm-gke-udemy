@@ -1,0 +1,93 @@
+name: 'Terraform Manual Run'
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_folder:
+        description: "Select the folder to execute terraform:"
+        required: true
+        type: choice
+        options:
+          - 01-Terraform-Install-Tools
+          - 02-Terraform-Commands
+          - 03-Terraform-Language-Basics
+          - 04-Terraform-MetaArgument-provider
+          - 05-Terraform-Variables-Output-Values
+          - 06-Terraform-MetaArgument-count
+          - 07-Terraform-Datasources
+          - 08-Terraform-MetaArgument-foreach
+          - 09-GKE-Public-Standard-Cluster
+          - 10-Kubernetes-Resources-yaml
+          - 11-Kubernetes-Resources-Terraform
+          - 12-GKE-Private-Standard-Cluster-Autoscaler
+          - 13-GKE-Horizontal-Pod-Autoscaling
+          - 14-GKE-Vertical-Pod-Autoscaling
+          - 15-GKE-Private-Standard-Cluster-private-endpoint
+          - 16-GKE-Private-Autopilot-cluster
+          - 17-GKE-Storage-Persistent-Disks
+          - 18-GKE-Storage-CloudSQL
+          - 19-GKE-Cloud-Storage-FUSE-CSI
+          - 20-GKE-Storage-Filestore
+          - 21-GKE-Gateway-API
+          - 22-Terraform-Modules
+          - 23-GKE-Infra-Custom-Terraform-Modules
+          - 24-GKE-Infra-DevOps-CloudBuild-GitHub
+          - 25-GKE-Workloads-Custom-Terraform-Modules
+          - 26-GKE-Workloads-DevOps-CloudBuild-GitHub
+          - 27-GKE-App-Continuous-Integration
+          - 28-GKE-App-Continuous-Delivery
+      tf_action:
+        description: "Select the terraform Actions:"
+        required: true
+        type: choice
+        default: "plan"
+        options:
+          - "plan"
+          - "apply"
+          - "destroy"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.target_folder }}
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate using WL-ID
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Plan
+        if: inputs.tf_action == 'plan'
+        run: terraform plan -input=false
+
+      - name: Terraform Apply
+        if: inputs.tf_action == 'apply'
+        run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Destroy
+        if: inputs.tf_action == 'destroy'
+        run: terraform destroy -auto-approve
