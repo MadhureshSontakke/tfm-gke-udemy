@@ -42,9 +42,54 @@
 #       with:
 #         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-name: 'Terraform'
+name: 'Terraform Manual Run'
 
 on:
+  workflow_dispatch:
+    inputs:
+      target_folder:
+        description: "Select the folder to execute terraform:"
+        required: true
+        type: choice
+        options: 
+          - 01-Terraform-Install-Tools
+          - 02-Terraform-Commands
+          - 03-Terraform-Language-Basics
+          - 04-Terraform-MetaArgument-provider
+          - 05-Terraform-Variables-Output-Values
+          - 06-Terraform-MetaArgument-count
+          - 07-Terraform-Datasources
+          - 08-Terraform-MetaArgument-foreach
+          - 09-GKE-Public-Standard-Cluster
+          - 10-Kubernetes-Resources-yaml
+          - 11-Kubernetes-Resources-Terraform
+          - 12-GKE-Private-Standard-Cluster-Autoscaler
+          - 13-GKE-Horizontal-Pod-Autoscaling
+          - 14-GKE-Vertical-Pod-Autoscaling
+          - 15-GKE-Private-Standard-Cluster-private-endpoint
+          - 16-GKE-Private-Autopilot-cluster
+          - 17-GKE-Storage-Persistent-Disks
+          - 18-GKE-Storage-CloudSQL
+          - 19-GKE-Cloud-Storage-FUSE-CSI
+          - 20-GKE-Storage-Filestore
+          - 21-GKE-Gateway-API
+          - 22-Terraform-Modules
+          - 23-GKE-Infra-Custom-Terraform-Modules
+          - 24-GKE-Infra-DevOps-CloudBuild-GitHub
+          - 25-GKE-Workloads-Custom-Terraform-Modules
+          - 26-GKE-Workloads-DevOps-CloudBuild-GitHub
+          - 27-GKE-App-Continuous-Integration
+          - 28-GKE-App-Continuous-Delivery
+      tf_action:
+        description: "Select the terraform Actions:"
+        required: true
+        type: choice
+        default : "plan"
+        options:
+          - "plan"
+          - "apply"
+          - "destroy"
+
   push:
     branches: [ "main" ]
   pull_request:
@@ -62,6 +107,7 @@ jobs:
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
+        working-directory: ${{ inputs.target_folder }}
         shell: bash
 
     steps:
@@ -92,10 +138,15 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: terraform plan -input=false
+    if: ${{ inputs.tf_action == 'plan' }}  
+    run: terraform plan -input=false
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+      if: ${{ inputs.tf_action == 'apply' }} && github.ref == 'refs/heads/"main"' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false
+
+    - name: Terraform Destroy
+      if: ${{ inputs.tf_action == 'destroy' }}
+      run: terraform destroy -auto-approve
