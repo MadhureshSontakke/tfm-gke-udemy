@@ -74,6 +74,10 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Working-Dir
+        run: |
+            echo "Current PWD is $(pwd)"
+            
       - name: Terraform Init
         run: terraform init
 
