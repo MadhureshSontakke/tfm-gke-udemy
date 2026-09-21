@@ -9,10 +9,10 @@ on:
         type: choice
         options:
           - 01-Terraform-Install-Tools
-          - 02-Terraform-Commands
-          - 03-Terraform-Language-Basics
-          - 04-Terraform-MetaArgument-provider
-          - 05-Terraform-Variables-Output-Values
+          -02-Terraform-Commands/terraform-manifests
+          - 03-Terraform-Language-Basics/terraform-manifests
+          - 04-Terraform-MetaArgument-provider/terraform-manifests
+          - 05-Terraform-Variables-Output-Values/terraform-manifests
           - 06-Terraform-MetaArgument-count
           - 07-Terraform-Datasources
           - 08-Terraform-MetaArgument-foreach
