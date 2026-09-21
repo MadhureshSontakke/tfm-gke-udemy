@@ -9,7 +9,7 @@ on:
         type: choice
         options:
           - 01-Terraform-Install-Tools
-          -02-Terraform-Commands/terraform-manifests
+          - 02-Terraform-Commands/terraform-manifests
           - 03-Terraform-Language-Basics/terraform-manifests
           - 04-Terraform-MetaArgument-provider/terraform-manifests
           - 05-Terraform-Variables-Output-Values/terraform-manifests
