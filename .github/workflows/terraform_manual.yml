@@ -40,6 +40,7 @@ on:
         description: "Terraform Actions"
         required: false
         type: string
+        default: "Select all the Terraform action to perform"
       plan:
         description: "Run terraform plan"
         required: false
