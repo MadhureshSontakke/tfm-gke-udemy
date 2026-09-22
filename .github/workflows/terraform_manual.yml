@@ -56,6 +56,16 @@ on:
         required: false
         type: boolean
         default: false
+      import:
+        description: "Run terraform import"
+        required: false
+        type: boolean
+        default: false
+      resource:
+        description: "Resource to import (format: <resource_type>.<resource_name>) <gcp_resource_id>"
+        required: false
+        type: string
+        default: "resource_type.resource_name gcp_resource_id"
 
 permissions:
   contents: read
@@ -138,3 +148,7 @@ jobs:
       - name: Terraform Destroy
         if: ${{ inputs.destroy }}
         run: terraform destroy -auto-approve
+      
+      - name: Terraform Import
+        if: ${{ inputs.import }}
+        run: terraform import ${{ inputs.resource }}
