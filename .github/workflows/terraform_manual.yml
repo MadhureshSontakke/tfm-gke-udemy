@@ -36,15 +36,21 @@ on:
           - 26-GKE-Workloads-DevOps-CloudBuild-GitHub
           - 27-GKE-App-Continuous-Integration
           - 28-GKE-App-Continuous-Delivery
-      tf_action:
-        description: "Select the terraform Actions:"
-        required: true
-        type: choice
-        default: "plan"
-        options:
-          - "plan"
-          - "apply"
-          - "destroy"
+      plan:
+        description: "Run terraform plan"
+        required: false
+        type: boolean
+        default: true
+      apply:
+        description: "Run terraform apply"
+        required: false
+        type: boolean
+        default: false
+      destroy:
+        description: "Run terraform destroy"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -105,13 +111,13 @@ jobs:
         
 
       - name: Terraform Plan
-        if: inputs.tf_action == 'plan'
+        if: ${{ inputs.plan }}
         run: terraform plan -input=false
 
       - name: Terraform Apply
-        if: inputs.tf_action == 'apply'
+        if: ${{ inputs.apply }}
         run: terraform apply -auto-approve -input=false
 
       - name: Terraform Destroy
-        if: inputs.tf_action == 'destroy'
+        if: ${{ inputs.destroy }}
         run: terraform destroy -auto-approve
