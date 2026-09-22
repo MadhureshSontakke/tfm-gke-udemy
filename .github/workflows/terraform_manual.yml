@@ -84,10 +84,15 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Working-Dir
+      - name: Working-Dir & Selectec Parameters
         run: |
             echo "Current PWD is $( pwd | awk -F'/tfm-gke-udemy/' '{print $2}')"
             echo "new Current PWD is ${PWD##*/tfm-gke-udemy/}"
+            echo " ################################################"
+            echo "Target Dir : ${{ inputs.target_folder }}"
+            echo "Terraform Plan : ${{ inputs.plan }}"
+            echo "Terraform Apply : ${{ inputs.apply }}"
+            echo "Terraform Destroy : ${{ inputs.destroy }}"
       - name: Terraform Init
         run: |
             terraform init \
