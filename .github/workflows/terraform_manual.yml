@@ -96,9 +96,9 @@ jobs:
             echo "Terraform Destroy : ${{ inputs.destroy }}"
       - name: Terraform Init
         run: |
-            terraform init \
+            terraform init -reconfigure \
               -backend-config="bucket=tfm-gke-udemy-backends" \
-              -backend-config="prefix='${PWD##*/tfm-gke-udemy/}'"
+              -backend-config="prefix=${PWD##*/tfm-gke-udemy/}"
 
       - name: Terraform Backend validation
         run: |
