@@ -36,6 +36,10 @@ on:
           - 26-GKE-Workloads-DevOps-CloudBuild-GitHub
           - 27-GKE-App-Continuous-Integration
           - 28-GKE-App-Continuous-Delivery
+      header:
+        description: "Terraform Actions"
+        required: false
+        type: string
       plan:
         description: "Run terraform plan"
         required: false
