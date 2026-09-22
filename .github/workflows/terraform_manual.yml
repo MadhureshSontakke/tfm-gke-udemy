@@ -100,6 +100,13 @@ jobs:
               -backend-config="bucket=tfm-gke-udemy-backends" \
               -backend-config="prefix='${PWD##*/tfm-gke-udemy/}'"
 
+      - name: Terraform Backend validation
+        run: |
+            # Get bucket  
+            terraform state pull | jq -r '.backend.config.bucket'
+
+            # Get prefix
+            terraform state pull | jq -r '.backend.config.prefix'   
       - name: Terraform Format Check & Auto-fix
         run: |
           echo "=== Step 1: Checking for formatting issues and errors ==="
