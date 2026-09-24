@@ -16,7 +16,7 @@ on:
           - 06-Terraform-MetaArgument-count
           - 07-Terraform-Datasources
           - 08-Terraform-MetaArgument-foreach
-          - 09-GKE-Public-Standard-Cluster
+          - 09-GKE-Public-Standard-Cluster/p1-gke-public-cluster
           - 10-Kubernetes-Resources-yaml
           - 11-Kubernetes-Resources-Terraform
           - 12-GKE-Private-Standard-Cluster-Autoscaler

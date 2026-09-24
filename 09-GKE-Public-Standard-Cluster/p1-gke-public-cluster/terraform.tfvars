@@ -1,5 +1,5 @@
-gcp_project     = "gcplearn9"
+gcp_project     = "project-df9bb8d2-8b74-40f0-b1a"
 gcp_region1     = "us-central1"
 machine_type    = "e2-medium"
 environment     = "dev"
-business_divsion = "hr"
+business_divsion = "mfa"
