@@ -7,6 +7,9 @@ inputs:
   service_account:
     description: GCP service account email
     required: true  
+  target_folder:
+    description: "Target folder for Terraform operations"
+    required: true
 
 
 runs:
