@@ -93,7 +93,7 @@ jobs:
       - name: Deploy 
         if: ${{ inputs.deploy }}
         run: |
-              cd $${{ inputs.target_folder }}/${{ inputs.subfolder }}
+              cd ${{ inputs.subfolder }}
               kubectl apply -f  --recursive
             
 
@@ -108,7 +108,7 @@ jobs:
       - name: Deployment Destroy
         if: ${{ inputs.destroy }}
         run: |
-          cd $${{ inputs.target_folder }}/${{ inputs.subfolder }}
+          cd ${{ inputs.subfolder }}
           kubectl delete -f --recursive
       
       # - name: Terraform Import
