@@ -26,6 +26,7 @@ runs:
 
     - name: Working-Dir & Selectec Parameters
       shell: bash
+      working-directory: ${{ inputs.target_folder }}
       run: |
             echo "Current PWD is $( pwd | awk -F'/tfm-gke-udemy/' '{print $2}')"
             echo "new Current PWD is ${PWD##*/tfm-gke-udemy/}"
@@ -37,6 +38,7 @@ runs:
     
     - name: Terraform Init
       shell: bash
+      working-directory: ${{ inputs.target_folder }}
       run: |
             terraform init -reconfigure \
               -backend-config="bucket=tfm-gke-udemy-backends" \
@@ -44,6 +46,7 @@ runs:
 
     - name: Terraform Backend validation
       shell: bash
+      working-directory: ${{ inputs.target_folder }}
       run: |
             # Get bucket  
             terraform state pull | jq -r '.backend.config.bucket'
@@ -52,6 +55,7 @@ runs:
             terraform state pull | jq -r '.backend.config.prefix'   
     - name: Terraform Format Check & Auto-fix
       shell: bash
+      working-directory: ${{ inputs.target_folder }}
       run: |
           echo "=== Step 1: Checking for formatting issues and errors ==="
           # terraform fmt -diff prints the unified diff showing exactly what is wrong
