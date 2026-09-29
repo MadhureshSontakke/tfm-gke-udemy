@@ -109,8 +109,8 @@ jobs:
         if: ${{ inputs.plan }}
         uses: actions/upload-artifact@v4
         with:
-          name: tfplan
-          path: ${{ inputs.target_folder }}/tfplan
+          name: tfplanfile
+          path: ${{ inputs.target_folder }}
           retention-days: 1
       
 
@@ -146,8 +146,8 @@ jobs:
         if: ${{ inputs.apply || inputs.destroy || inputs.import }}
         uses: actions/download-artifact@v4
         with:
-          name: tfplan
-          path: ${{ inputs.target_folder }}/tfplan
+          name: tfplanfile
+          path: ${{ inputs.target_folder }}
 
       - name: Terraform Apply
         if: ${{ inputs.apply }}
