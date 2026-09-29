@@ -72,7 +72,7 @@ permissions:
   id-token: write
 
 jobs:
-  terraform plan:
+  terraform-plan:
     name: 'Terraform'
     runs-on: ubuntu-latest
     environment: production
@@ -178,11 +178,11 @@ jobs:
       #   if: ${{ inputs.import }}
       #   run: terraform import ${{ inputs.resource }}
 
-  terraform execute:
+  terraform-execute:
     name: 'Terraform Execute'
     runs-on: ubuntu-latest
     environment: production
-    needs: terraform plan
+    needs: [terraform-plan]
     if: ${{ inputs.apply || inputs.destroy || inputs.import }}
 
     defaults:
