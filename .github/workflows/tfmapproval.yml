@@ -1,4 +1,4 @@
-name: 'Terraform Manual Run'
+name: 'Terraform Approval Run'
 
 on:
   workflow_dispatch:
@@ -183,7 +183,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: terraform plan
-    if: ${{ inpputs.apply || inputs.destroy || inputs.import }}
+    if: ${{ inputs.apply || inputs.destroy || inputs.import }}
 
     defaults:
       run:
