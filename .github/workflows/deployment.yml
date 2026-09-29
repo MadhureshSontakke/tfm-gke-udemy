@@ -56,6 +56,11 @@ on:
         required: false
         type: boolean
         default: false
+      deploystatus:
+        description: "Perform the Deployment Status"
+        required: false
+        type: boolean
+        default: false  
 
 permissions:
   contents: read
@@ -81,7 +86,7 @@ jobs:
         with:
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         with:
@@ -115,7 +120,9 @@ jobs:
         run: |
           cd ${{ inputs.subfolder }}
           kubectl delete -f . --recursive
-      
-      # - name: Terraform Import
-      #   if: ${{ inputs.import }}
-      #   run: terraform import ${{ inputs.resource }}
+
+      - name: Deployment Status
+        if: ${{ inputs.deploystatus }}
+        run: |
+          cd ${{ inputs.subfolder }}
+          kubectl get all
