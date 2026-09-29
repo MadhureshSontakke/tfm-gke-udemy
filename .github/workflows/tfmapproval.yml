@@ -154,7 +154,7 @@ jobs:
         run: terraform apply -auto-approve tfplan
       - name: Terraform Destroy
         if: ${{ inputs.destroy }}
-        run: terraform destroy -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan
       - name: Terraform Import
         if: ${{ inputs.import }}
         run: terraform import ${{ inputs.resource }}
