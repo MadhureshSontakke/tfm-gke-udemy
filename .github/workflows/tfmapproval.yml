@@ -204,7 +204,7 @@ jobs:
           apply: ${{ inputs.apply }}
           destroy: ${{ inputs.destroy }}
           import: ${{ inputs.import }}
-          subfolder: ${{ inputs.subfolder }}
+          # subfolder: ${{ inputs.subfolder }}
 
       - name: Download Terraform Plan
         if: ${{ inputs.apply || inputs.destroy || inputs.import }}
