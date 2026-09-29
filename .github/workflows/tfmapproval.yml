@@ -75,7 +75,7 @@ jobs:
   terraform-plan:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    environment: production
+    # environment: production
 
     defaults:
       run:
@@ -94,59 +94,7 @@ jobs:
           target_folder: ${{ inputs.target_folder }}
           plan: ${{ inputs.plan }}
           apply: ${{ inputs.apply }}
-          destroy: ${{ inputs.destroy }}
-          
-          
-      # - name: Authenticate using WL-ID
-      #   uses: google-github-actions/auth@v2
-      #   with:
-      #     workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      #     service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
-      # - name: Setup Terraform
-      #   uses: hashicorp/setup-terraform@v3
-
-      # - name: Working-Dir & Selectec Parameters
-      #   run: |
-      #       echo "Current PWD is $( pwd | awk -F'/tfm-gke-udemy/' '{print $2}')"
-      #       echo "new Current PWD is ${PWD##*/tfm-gke-udemy/}"
-      #       echo " ################################################"
-      #       echo "Target Dir : ${{ inputs.target_folder }}"
-      #       echo "Terraform Plan : ${{ inputs.plan }}"
-      #       echo "Terraform Apply : ${{ inputs.apply }}"
-      #       echo "Terraform Destroy : ${{ inputs.destroy }}"
-      # - name: Terraform Init
-      #   run: |
-      #       terraform init -reconfigure \
-      #         -backend-config="bucket=tfm-gke-udemy-backends" \
-      #         -backend-config="prefix=${PWD##*/tfm-gke-udemy/}"
-
-      # - name: Terraform Backend validation
-      #   run: |
-      #       # Get bucket  
-      #       terraform state pull | jq -r '.backend.config.bucket'
-
-      #       # Get prefix
-      #       terraform state pull | jq -r '.backend.config.prefix'   
-      # - name: Terraform Format Check & Auto-fix
-      #   run: |
-      #     echo "=== Step 1: Checking for formatting issues and errors ==="
-      #     # terraform fmt -diff prints the unified diff showing exactly what is wrong
-      #     if ! terraform fmt -check -diff -recursive; then
-      #       echo "⚠️ Formatting issues detected above! Applying runtime fixes..."
-            
-      #       echo "=== Step 2: Auto-correcting files in workspace ==="
-      #       # Auto-formats all files in place so subsequent steps proceed cleanly
-      #       terraform fmt -recursive
-            
-      #       echo "✅ Files successfully formatted for this run."
-      #     else
-      #       echo "✅ All files are already canonically formatted. No fixes needed."
-      #     fi
-
-      # # - name: Terraform Format
-      # #   run: terraform fmt -check
-        
+          destroy: ${{ inputs.destroy }}      
 
       - name: Terraform Plan Generation
         if: ${{ inputs.plan }}
@@ -159,24 +107,12 @@ jobs:
           fi
       - name: Upload Terraform Plan
         if: ${{ inputs.plan }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: ${{ inputs.target_folder }}/tfplan
           retention-days: 1
       
-
-      # - name: Terraform Apply
-      #   if: ${{ inputs.apply }}
-      #   run: terraform apply -auto-approve -input=false
-
-      # - name: Terraform Destroy
-      #   if: ${{ inputs.destroy }}
-      #   run: terraform destroy -auto-approve
-      
-      # - name: Terraform Import
-      #   if: ${{ inputs.import }}
-      #   run: terraform import ${{ inputs.resource }}
 
   terraform-execute:
     name: 'Terraform Execute'
@@ -208,7 +144,7 @@ jobs:
 
       - name: Download Terraform Plan
         if: ${{ inputs.apply || inputs.destroy || inputs.import }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: tfplan
           path: ${{ inputs.target_folder }}/tfplan
