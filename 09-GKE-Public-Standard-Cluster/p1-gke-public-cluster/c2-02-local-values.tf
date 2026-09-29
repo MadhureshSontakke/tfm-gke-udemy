@@ -7,5 +7,12 @@ locals {
   common_tags = {
     owners = local.owners
     environment = local.environment
+  gke_node_roles = [
+    "roles/container.nodeServiceAccount",
+    "roles/container.clusterViewer",
+    "roles/compute.viewer",
+    "roles/container.defaultNodeServiceAgent",
+    "roles/container.defaultNodeServiceAccount"
+  ]
   }
 } 
