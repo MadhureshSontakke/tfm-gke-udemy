@@ -1,0 +1,228 @@
+name: 'Terraform Manual Run'
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_folder:
+        description: "Select the folder to execute terraform:"
+        required: true
+        type: choice
+        options:
+          - 01-Terraform-Install-Tools
+          - 02-Terraform-Commands/terraform-manifests
+          - 03-Terraform-Language-Basics/terraform-manifests
+          - 04-Terraform-MetaArgument-provider/terraform-manifests
+          - 05-Terraform-Variables-Output-Values/terraform-manifests
+          - 06-Terraform-MetaArgument-count
+          - 07-Terraform-Datasources
+          - 08-Terraform-MetaArgument-foreach
+          - 09-GKE-Public-Standard-Cluster/p1-gke-public-cluster
+          - 10-Kubernetes-Resources-yaml
+          - 11-Kubernetes-Resources-Terraform
+          - 12-GKE-Private-Standard-Cluster-Autoscaler
+          - 13-GKE-Horizontal-Pod-Autoscaling
+          - 14-GKE-Vertical-Pod-Autoscaling
+          - 15-GKE-Private-Standard-Cluster-private-endpoint
+          - 16-GKE-Private-Autopilot-cluster
+          - 17-GKE-Storage-Persistent-Disks
+          - 18-GKE-Storage-CloudSQL
+          - 19-GKE-Cloud-Storage-FUSE-CSI
+          - 20-GKE-Storage-Filestore
+          - 21-GKE-Gateway-API
+          - 22-Terraform-Modules
+          - 23-GKE-Infra-Custom-Terraform-Modules
+          - 24-GKE-Infra-DevOps-CloudBuild-GitHub
+          - 25-GKE-Workloads-Custom-Terraform-Modules
+          - 26-GKE-Workloads-DevOps-CloudBuild-GitHub
+          - 27-GKE-App-Continuous-Integration
+          - 28-GKE-App-Continuous-Delivery
+      header:
+        description: "Terraform Actions"
+        required: false
+        type: string
+        default: "Select all the Terraform action to perform"
+      plan:
+        description: "Run terraform plan"
+        required: false
+        type: boolean
+        default: true
+      apply:
+        description: "Run terraform apply"
+        required: false
+        type: boolean
+        default: false
+      destroy:
+        description: "Run terraform destroy"
+        required: false
+        type: boolean
+        default: false
+      import:
+        description: "Run terraform import"
+        required: false
+        type: boolean
+        default: false
+      resource:
+        description: "Resource to import (format: <resource_type>.<resource_name>) <gcp_resource_id>"
+        required: false
+        type: string
+        default: "resource_type.resource_name gcp_resource_id"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform plan:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.target_folder }}
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform & GCP
+        uses: ./.github/actions/setup-terraform
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          target_folder: ${{ inputs.target_folder }}
+          plan: ${{ inputs.plan }}
+          apply: ${{ inputs.apply }}
+          destroy: ${{ inputs.destroy }}
+          
+          
+      # - name: Authenticate using WL-ID
+      #   uses: google-github-actions/auth@v2
+      #   with:
+      #     workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      #     service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      # - name: Setup Terraform
+      #   uses: hashicorp/setup-terraform@v3
+
+      # - name: Working-Dir & Selectec Parameters
+      #   run: |
+      #       echo "Current PWD is $( pwd | awk -F'/tfm-gke-udemy/' '{print $2}')"
+      #       echo "new Current PWD is ${PWD##*/tfm-gke-udemy/}"
+      #       echo " ################################################"
+      #       echo "Target Dir : ${{ inputs.target_folder }}"
+      #       echo "Terraform Plan : ${{ inputs.plan }}"
+      #       echo "Terraform Apply : ${{ inputs.apply }}"
+      #       echo "Terraform Destroy : ${{ inputs.destroy }}"
+      # - name: Terraform Init
+      #   run: |
+      #       terraform init -reconfigure \
+      #         -backend-config="bucket=tfm-gke-udemy-backends" \
+      #         -backend-config="prefix=${PWD##*/tfm-gke-udemy/}"
+
+      # - name: Terraform Backend validation
+      #   run: |
+      #       # Get bucket  
+      #       terraform state pull | jq -r '.backend.config.bucket'
+
+      #       # Get prefix
+      #       terraform state pull | jq -r '.backend.config.prefix'   
+      # - name: Terraform Format Check & Auto-fix
+      #   run: |
+      #     echo "=== Step 1: Checking for formatting issues and errors ==="
+      #     # terraform fmt -diff prints the unified diff showing exactly what is wrong
+      #     if ! terraform fmt -check -diff -recursive; then
+      #       echo "⚠️ Formatting issues detected above! Applying runtime fixes..."
+            
+      #       echo "=== Step 2: Auto-correcting files in workspace ==="
+      #       # Auto-formats all files in place so subsequent steps proceed cleanly
+      #       terraform fmt -recursive
+            
+      #       echo "✅ Files successfully formatted for this run."
+      #     else
+      #       echo "✅ All files are already canonically formatted. No fixes needed."
+      #     fi
+
+      # # - name: Terraform Format
+      # #   run: terraform fmt -check
+        
+
+      - name: Terraform Plan Generation
+        if: ${{ inputs.plan }}
+        # run: terraform plan -input=false
+        run: |
+          if [ "${{ inputs.destroy }}" == "true" ]; then
+            terraform plan -destroy -out=tfplan -input=false
+          else
+            terraform plan -out=tfplan -input=false
+          fi
+      - name: Upload Terraform Plan
+        if: ${{ inputs.plan }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan
+          path: ${{ inputs.target_folder }}/tfplan
+          retention-days: 1
+      
+
+      # - name: Terraform Apply
+      #   if: ${{ inputs.apply }}
+      #   run: terraform apply -auto-approve -input=false
+
+      # - name: Terraform Destroy
+      #   if: ${{ inputs.destroy }}
+      #   run: terraform destroy -auto-approve
+      
+      # - name: Terraform Import
+      #   if: ${{ inputs.import }}
+      #   run: terraform import ${{ inputs.resource }}
+
+  terraform execute:
+    name: 'Terraform Execute'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: terraform plan
+    if: ${{ inpputs.apply || inputs.destroy || inputs.import }}
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.target_folder }}
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform & GCP
+        uses: ./.github/actions/setup-terraform
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          target_folder: ${{ inputs.target_folder }}
+          plan: ${{ inputs.plan }}
+          apply: ${{ inputs.apply }}
+          destroy: ${{ inputs.destroy }}
+          import: ${{ inputs.import }}
+          subfolder: ${{ inputs.subfolder }}
+
+      - name: Download Terraform Plan
+        if: ${{ inputs.apply || inputs.destroy || inputs.import }}
+        uses: actions/download-artifact@v3
+        with:
+          name: tfplan
+          path: ${{ inputs.target_folder }}/tfplan
+
+      - name: Terraform Apply
+        if: ${{ inputs.apply }}
+        run: terraform apply -auto-approve tfplan
+      - name: Terraform Destroy
+        if: ${{ inputs.destroy }}
+        run: terraform destroy -auto-approve tfplan
+      - name: Terraform Import
+        if: ${{ inputs.import }}
+        run: terraform import ${{ inputs.resource }}
+
+
+
+      
