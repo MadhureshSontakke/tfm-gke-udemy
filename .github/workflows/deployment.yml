@@ -1,0 +1,116 @@
+name: Deployments in GKE
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_folder:
+        description: "Select the folder to execute terraform:"
+        required: true
+        type: choice
+        options:
+          - 01-Terraform-Install-Tools
+          - 02-Terraform-Commands/terraform-manifests
+          - 03-Terraform-Language-Basics/terraform-manifests
+          - 04-Terraform-MetaArgument-provider/terraform-manifests
+          - 05-Terraform-Variables-Output-Values/terraform-manifests
+          - 06-Terraform-MetaArgument-count
+          - 07-Terraform-Datasources
+          - 08-Terraform-MetaArgument-foreach
+          - 09-GKE-Public-Standard-Cluster/p1-gke-public-cluster
+          - 10-Kubernetes-Resources-yaml
+          - 11-Kubernetes-Resources-Terraform
+          - 12-GKE-Private-Standard-Cluster-Autoscaler
+          - 13-GKE-Horizontal-Pod-Autoscaling
+          - 14-GKE-Vertical-Pod-Autoscaling
+          - 15-GKE-Private-Standard-Cluster-private-endpoint
+          - 16-GKE-Private-Autopilot-cluster
+          - 17-GKE-Storage-Persistent-Disks
+          - 18-GKE-Storage-CloudSQL
+          - 19-GKE-Cloud-Storage-FUSE-CSI
+          - 20-GKE-Storage-Filestore
+          - 21-GKE-Gateway-API
+          - 22-Terraform-Modules
+          - 23-GKE-Infra-Custom-Terraform-Modules
+          - 24-GKE-Infra-DevOps-CloudBuild-GitHub
+          - 25-GKE-Workloads-Custom-Terraform-Modules
+          - 26-GKE-Workloads-DevOps-CloudBuild-GitHub
+          - 27-GKE-App-Continuous-Integration
+          - 28-GKE-App-Continuous-Delivery
+      subfolder:
+        description: "Write Deployment Folder"
+        required: false
+        type: string
+        default:    
+      header:
+        description: "GKE Actions"
+        required: false
+        type: string
+        default: "Select all the GKE actions to perform"
+      deploy:
+        description: "Perform the Deployments"
+        required: false
+        type: boolean
+        default: false
+      destroy:
+        description: "Perform the Destroy"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  gke_deployments:
+    name: 'Deployments'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.target_folder }}
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate using WL-ID
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      # - name: Setup Terraform
+      #   uses: hashicorp/setup-terraform@v3
+
+      - name: Kubectl installtion and GKE authentication
+        run: |
+            echo "Installing kubectl and GKE installation"
+            gcloud container clusters get-credentials mfa-dev-gke-cluster --region us-central1 --project project-df9bb8d2-8b74-40f0-b1a
+
+      - name: Deploy 
+        if: ${{ inputs.deploy }}
+        run: |
+              cd $${{ inputs.target_folder }}/${{ inputs.subfolder }}
+              kubectl apply -f  --recursive
+            
+
+      # - name: Terraform Plan
+      #   if: ${{ inputs.plan }}
+      #   run: terraform plan -input=false
+
+      # - name: Terraform Apply
+      #   if: ${{ inputs.apply }}
+      #   run: terraform apply -auto-approve -input=false
+
+      - name: Deployment Destroy
+        if: ${{ inputs.destroy }}
+        run: |
+          cd $${{ inputs.target_folder }}/${{ inputs.subfolder }}
+          kubectl delete -f --recursive
+      
+      # - name: Terraform Import
+      #   if: ${{ inputs.import }}
+      #   run: terraform import ${{ inputs.resource }}
